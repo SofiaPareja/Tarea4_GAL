@@ -53,14 +53,39 @@ def rotate_image(angulo, matriz):
 
 def scale_image(x, y, imagen):
     # Crear una matriz de transformación 2x3 para escalado
-    matriz_escalado = np.array(
-        [[x, 0, 0], [0, y, 0], [0, 0, 1]], dtype=np.float32)
+    #matriz_escalado = np.array(
+     #   [[x, 0, 0], [0, y, 0], [0, 0, 1]], dtype=np.float32)
 
-    matriz_escalado = matriz_escalado.astype(np.float32)
+    matriz_escalado = np.array([[x, 0, 0], [0, y, 0]])
     # Aplicar la transformación a la imagen
     imagen_escalada = aplicar_transformacion(imagen, matriz_escalado)
 
     return imagen_escalada
+
+def deform_image(image, dx, dy):
+
+    deformation_matrix = np.float32([[1, dx, 0], [dy, 1, 0]])
+    deformed_image = aplicar_transformacion(image, deformation_matrix)
+
+    return deformed_image
+
+
+def compress_image_svd(image, k):
+    # Convertir la imagen a escala de grises
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    U, S, VT = np.linalg.svd(gray_image, full_matrices=False)
+
+    U_k = U[:, :k]
+    S_k = np.diag(S[:k])
+    VT_k = VT[:k, :]
+
+    compressed_image = np.dot(U_k, np.dot(S_k, VT_k))
+
+    return compressed_image
+
+
+
 
 
 imagen = cv2.imread("perro.jpg")
@@ -86,5 +111,22 @@ rotated_image = rotate_image(45, grayscale_image)
 mostrar_img(rotated_image, "imagen rotada")
 
 
-scaled_image = scale_image(0.5, 0.5, grayscale_image)
+scaled_image = scale_image(1, 0.5, grayscale_image)
 mostrar_img(scaled_image, "imagen escalada")
+
+deformed_image = deform_image(grayscale_image,0.2,-0.1)
+mostrar_img(deformed_image, "imagen defo")
+
+k_values = [5, 20, 50, 100]
+
+
+plt.figure(figsize=(15, 5))
+for i, k in enumerate(k_values, 1):
+    compressed_image = compress_image_svd(imagen, k)
+
+    plt.subplot(1, len(k_values), i)
+    plt.imshow(compressed_image, cmap='gray')
+    plt.title(f'k = {k}')
+    plt.axis('off')
+
+plt.show()
