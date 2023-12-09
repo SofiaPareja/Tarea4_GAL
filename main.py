@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 def apply_transformation(image, transformation_matrix):
     rows, columns = image.shape[:2]
     transformed_image = cv2.warpAffine(
-        image, transformation_matrix, (columns*2, rows*2))
+        image, transformation_matrix, (columns*2, rows*2)) #se pone el doble del valor de filas y columnas para visualizar mejor la rotación
     return transformed_image
 
 
@@ -28,15 +28,7 @@ def cut_image(url_img: str, url_img_crop: str, x_initial: int, x_final: int, y_i
     except Exception as e:
         print("Ha ocurrido un error:", str(e))
 
-def rotate_image_v2(angle, image):
-    # Convertir el ángulo a radianes
-    theta_rad = np.radians(angle)
-    rows, columns = image.shape[:2]
-    # Construir la matriz de rotación 2D
-    matriz_rot = np.array([[np.cos(theta_rad), -np.sin(theta_rad),columns/2],
-                           [np.sin(theta_rad), np.cos(theta_rad),rows/2]])
-    image_rotates = apply_transformation(image, matriz_rot)
-    return image_rotates
+
 
 def show_img(image, title):
     cv2.imshow(title, image)
@@ -93,11 +85,6 @@ show_img(image_v2, "imagen perro")
 
 print(" El tamaño de la imagen 1 es de" + str(image_v2.shape))
 
-cut_image("perro.jpg", "perro1.jpg",
-                   0, 250, 0, 250)
-image_v3 = cv2.imread("perro1.jpg")
-show_img(image_v2, "imagen recortada perro")
-
 
 
 grayscale_image = cv2.cvtColor(image_v2, cv2.COLOR_BGR2GRAY)
@@ -106,15 +93,25 @@ show_img(grayscale_image, "imagen grayscale")
 
 # Aplicar transformaciones
 rotated_image = rotate_image(45, grayscale_image)
-show_img(rotated_image, "imagen rotada")
+show_img(rotated_image, "imagen rotada a 45")
+rotated_image = rotate_image(-30, grayscale_image)
+show_img(rotated_image, "imagen rotada a -30")
 
 
 scaled_image = scale_image(0.5, 0.5, grayscale_image)
 print(scaled_image)
-show_img(scaled_image, "imagen escalada")
+show_img(scaled_image, "imagen escalada 1")
+
+scaled_image = scale_image(2, 0.7, grayscale_image)
+print(scaled_image)
+show_img(scaled_image, "imagen escalada 2")
+
 
 deformed_image = deform_image(grayscale_image,0.2,-0.1)
-show_img(deformed_image, "imagen defo")
+show_img(deformed_image, "imagen deformada 1")
+
+deformed_image = deform_image(grayscale_image,-0.2,0.3)
+show_img(deformed_image, "imagen deformada 2")
 
 k_values = [5, 20, 50, 100]
 
@@ -130,5 +127,4 @@ for i, k in enumerate(k_values, 1):
 
 plt.show()
 
-aux = rotate_image_v2(-45,image_v2)
-show_img(aux,"aksdl")
+
